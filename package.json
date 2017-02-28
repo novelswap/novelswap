@@ -4,7 +4,8 @@
   "description": "Swap your books. Online. For Free.",
   "main": "server.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "start": "gulp watch:dev"
   },
   "repository": {
     "type": "git",
