@@ -20,6 +20,10 @@ const watch = require('gulp-watch');
 const notify = require('gulp-notify');
 const babel = require('gulp-babel');
 const imagemin = require('gulp-imagemin');
+const browserSync = require('browser-sync').create();
+const reload = browserSync.reload;
+const mustache = require("gulp-mustache-plus");
+const nodemon = require('gulp-nodemon');
 
 // ==============
 // S A S S
@@ -57,3 +61,45 @@ gulp.task('imagemin', () => {
   .pipe(imagemin())
   .pipe(gulp.dest('./dist/img'));
 });
+
+// ==============
+// O T H E R
+// ==============
+gulp.task('browser-sync', ['nodemon'], () => {
+  browserSync.init({
+    proxy: 'http://localhost:6969',
+    port: '3001',
+    notify: true,
+    open: true,
+    injectChanges: true,
+  });
+});
+
+gulp.task('nodemon', (cb) => {
+  let called = false;
+  return nodemon({
+    script: 'server.js',
+  })
+  .on('start', () => {
+    if (!called) {
+      called = true;
+      cb();
+    }
+  })
+  .on('restart', () => {
+    setTimeout(() => {
+      reload({ stream: false });
+    }, 1000);
+  });
+});
+
+
+// ==============
+// R U N
+// ==============
+gulp.task('watch:dev', ['build:dev', 'browser-sync'], () => {
+  gulp.watch('./sass/*.scss', ['sass', reload]);
+  gulp.watch('./src/js/*.js', ['es6-to-es5', reload]);
+});
+
+gulp.task('build:dev', ['sass', 'es6-to-es5']);
